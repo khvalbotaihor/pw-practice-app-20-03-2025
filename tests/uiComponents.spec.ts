@@ -120,4 +120,90 @@ test("tooltip", async ({ page }) => {
 test("dialog boxes", async ({ page }) => {
   await page.getByText("Tables & Data").click();
   await page.getByText("Smart table").click();
+
+  // handle browser dialog
+  page.on("dialog", async (dialog) => {
+    expect(dialog.message()).toEqual("Are you sure you want to delete?");
+    await dialog.accept();
+  });
+
+  await page
+    .getByRole("table")
+    .locator("tr", { hasText: "mdo@gmail.com" })
+    .locator(".nb-trash")
+    .click();
+
+  expect(await page.getByRole("table").locator("tr").allTextContents()).toEqual(
+    expect.not.arrayContaining(["mdo@gmail.com"])
+  );
+
+  await expect(page.locator("table tr").first()).not.toHaveText(
+    "mdo@gmail.com"
+  );
+});
+
+test.only("table", async ({ page }) => {
+  await page.getByText("Tables & Data").click();
+  await page.getByText("Smart table").click();
+
+  const targetRow = page.getByRole("row", { name: "twitter@outlook.com" });
+  await targetRow.locator(".nb-edit").click();
+
+  await page.locator("input-editor").getByPlaceholder("Age").clear();
+  await page.locator("input-editor").getByPlaceholder("Age").fill("99");
+  await page.locator(".nb-checkmark").click();
+  await expect(targetRow).toContainText("99");
+
+  //navigate to second tab
+  await page.locator(".ng2-smart-pagination-nav").getByText("2").click();
+  const targetRowById = page
+    .getByRole("row", { name: "11" })
+    .filter({ has: page.locator("td").nth(1).getByText("11") });
+  await targetRowById.locator(".nb-edit").click();
+  await page.locator("input-editor").getByPlaceholder("Age").clear();
+  await page.locator("input-editor").getByPlaceholder("Age").fill("99");
+  await page.locator("input-editor").getByPlaceholder("E-mail").clear();
+  await page
+    .locator("input-editor")
+    .getByPlaceholder("E-mail")
+    .fill("email@gmail.com");
+
+  await page.locator(".nb-checkmark").click();
+
+  await expect(targetRowById).toContainText("99");
+  await expect(targetRowById).toContainText("email@gmail.com");
+
+  await expect(targetRowById.locator("td").nth(5)).toHaveText(
+    "email@gmail.com"
+  );
+  await expect(targetRowById.locator("td").nth(6)).toHaveText("99");
+
+  // test filter of teh table
+  const ages = ["20", "30", "40", "200"];
+
+  for (let age of ages) {
+    await page.locator("input-filter").getByPlaceholder("Age").clear();
+    await page.locator("input-filter").getByPlaceholder("Age").fill(age);
+    await page.waitForTimeout(500);
+    if (age == "200") {
+      await expect(await page.locator("tbody tr").count()).toBe(1);
+      await expect(await page.locator("tbody tr")).toContainText(
+        "No data found"
+      );
+    } else {
+      await expect(await page.locator("tbody tr td").count()).toBeGreaterThan(
+        1
+      );
+    }
+
+    const rows = page.locator("tbody tr");
+    for (let row of await rows.all()) {
+      const cellValue = await row.locator("td").last().textContent();
+      if (age == "200") {
+        await expect(cellValue).toContain("No data found");
+      } else {
+        await expect(cellValue).toEqual(age);
+      }
+    }
+  }
 });
