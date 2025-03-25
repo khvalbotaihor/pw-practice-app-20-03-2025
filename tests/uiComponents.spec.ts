@@ -332,11 +332,62 @@ test.only("date picker2", async ({ page }) => {
   await page.getByText("Datepicker").click();
 
   const calendarInput = page.getByPlaceholder("Form Picker");
+  const calendarInputWithRange = page.getByPlaceholder("Range Picker");
+
+  async function selectDate(additionalDay) {
+    let date = new Date();
+    date.setDate(date.getDate() + additionalDay);
+    const day = date.getDate();
+    const formattedDate = date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+    const calendarMonthYearValue = date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+    });
+    let calendarMonthYearElement = await page
+      .locator("nb-calendar-view-mode")
+      .textContent();
+
+    while (!calendarMonthYearElement.includes(calendarMonthYearValue)) {
+      console.log(
+        `calendarMonthYearElement: ${calendarMonthYearElement} includes ${calendarMonthYearValue}`
+      );
+      await page.locator('[data-name="chevron-right"]').click();
+      calendarMonthYearElement = await page
+        .locator("nb-calendar-view-mode")
+        .textContent();
+    }
+
+    const calendarDay = page
+      .locator(".day-cell.ng-star-inserted:not(.bounding-month)")
+      .getByText(day.toString(), { exact: true });
+    await calendarDay.click();
+    return formattedDate;
+  }
+
   await calendarInput.click();
 
-  const calendarDay = page
-    .locator('[class="day-cell ng-star-inserted"]')
-    .getByText("1", { exact: true });
-  await calendarDay.click();
-  await expect(calendarInput).toHaveValue("Mar 1, 2025");
+  const formattedDate = await selectDate(20);
+
+  await expect(calendarInput).toHaveValue(formattedDate);
+  // second date compare
+
+  await calendarInput.click();
+
+  const formattedDate2 = await selectDate(30);
+
+  await expect(calendarInput).toHaveValue(formattedDate2);
+
+  // datepicker with range
+
+  const datePickerWithRange = page.getByPlaceholder("Range Picker");
+  await datePickerWithRange.click();
+  const formattedDate3 = await selectDate(40);
+  const formattedDate4 = await selectDate(90);
+  await expect(datePickerWithRange).toHaveValue(
+    `${formattedDate3} - ${formattedDate4}`
+  );
 });
