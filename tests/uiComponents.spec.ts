@@ -142,7 +142,7 @@ test("dialog boxes", async ({ page }) => {
   );
 });
 
-test.only("table", async ({ page }) => {
+test("table", async ({ page }) => {
   await page.getByText("Tables & Data").click();
   await page.getByText("Smart table").click();
 
@@ -206,4 +206,137 @@ test.only("table", async ({ page }) => {
       }
     }
   }
+});
+
+test("date picker", async ({ page }) => {
+  await page.getByText("Forms").click();
+  await page.getByText("Datepicker").click();
+
+  const commonDatepickerContainer = page.locator("nb-card", {
+    hasText: "Common Datepicker",
+  });
+  const datepickerWithRange = page.locator("nb-card", {
+    hasText: "Datepicker With Range",
+  });
+  const datepickerWithDisabledMixMaxValues = page.locator("nb-card", {
+    hasText: "Datepicker With Min Max Values",
+  });
+  const today = new Date();
+  const day = today.getDate();
+
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  };
+
+  const formattedDate = today.toLocaleDateString("en-US", options);
+
+  await commonDatepickerContainer.locator("input").click();
+  await page
+    .locator(
+      "nb-calendar-day-picker nb-calendar-day-cell:not(.bounding-month)",
+      {
+        hasText: day.toString(),
+      }
+    )
+    .click();
+
+  await expect(commonDatepickerContainer.locator("input")).toHaveValue(
+    formattedDate
+  );
+
+  //
+  async function selectFutureDay(page, daysToAdd = 100) {
+    // 1. Calculate the future date
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + daysToAdd);
+    const formattedDateReturn = targetDate.toLocaleDateString("en-US", options);
+
+    const targetDay = targetDate.getDate();
+    const targetMonth = targetDate.getMonth(); // 0-based (0 = January)
+    const targetYear = targetDate.getFullYear();
+
+    console.log(`Selecting date: ${targetDate.toDateString()}`);
+
+    // 2. Open the calendar (assumes it's already open; open it if needed)
+
+    // 3. Loop until the displayed month matches the target month and year
+    while (true) {
+      // Get the current displayed month and year
+      const calendarHeader = await page
+        .locator("nb-calendar-view-mode")
+        .textContent();
+
+      // Example format might be: "March 2025"
+      const [displayedMonthName, displayedYear] = calendarHeader
+        .trim()
+        .split(" ");
+
+      // Convert displayed month name to month index
+      const months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+      const displayedMonth = months.indexOf(displayedMonthName);
+
+      // Compare current displayed month/year with target
+      if (
+        displayedMonth === targetMonth &&
+        parseInt(displayedYear) === targetYear
+      ) {
+        break; // Stop clicking next when we are on the target month/year
+      }
+
+      // Click the next month button to navigate forward
+      await page.locator('[data-name="chevron-right"]').click();
+
+      // Optional: wait a short time for calendar to update
+      await page.waitForTimeout(300);
+    }
+
+    // 4. Select the target day, excluding days from bounding-month
+    await page
+      .locator(
+        `nb-calendar-day-picker nb-calendar-day-cell:not(.bounding-month) .cell-content`,
+        {
+          hasText: new RegExp(`^\\s*${targetDay}\\s*$`),
+        }
+      )
+      .filter({ hasText: targetDay.toString() })
+      .click();
+
+    console.log(`Date selected: ${targetDate.toDateString()}`);
+    return formattedDateReturn;
+  }
+
+  await commonDatepickerContainer.locator("input").click();
+  const returnDate = await selectFutureDay(page, 100);
+  await expect(commonDatepickerContainer.locator("input")).toHaveValue(
+    returnDate
+  );
+});
+
+test.only("date picker2", async ({ page }) => {
+  await page.getByText("Forms").click();
+  await page.getByText("Datepicker").click();
+
+  const calendarInput = page.getByPlaceholder("Form Picker");
+  await calendarInput.click();
+
+  const calendarDay = page
+    .locator('[class="day-cell ng-star-inserted"]')
+    .getByText("1", { exact: true });
+  await calendarDay.click();
+  await expect(calendarInput).toHaveValue("Mar 1, 2025");
 });
