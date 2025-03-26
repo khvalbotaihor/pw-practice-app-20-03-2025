@@ -327,7 +327,7 @@ test("date picker", async ({ page }) => {
   );
 });
 
-test.only("date picker2", async ({ page }) => {
+test("date picker2", async ({ page }) => {
   await page.getByText("Forms").click();
   await page.getByText("Datepicker").click();
 
@@ -390,4 +390,38 @@ test.only("date picker2", async ({ page }) => {
   await expect(datePickerWithRange).toHaveValue(
     `${formattedDate3} - ${formattedDate4}`
   );
+});
+
+test.only("slider", async ({ page }) => {
+  // update attribute value
+  const tab = page.locator(
+    '[tabtitle="Temperature"] ngx-temperature-dragger circle'
+  );
+  await tab.evaluate((node) => {
+    node.setAttribute("cx", "232.63098833543773");
+    node.setAttribute("cy", "232.6309883354377");
+  });
+  await tab.click();
+  const temperatureValue = await page
+    .locator('[class="value temperature h1"]')
+    .textContent();
+  await expect(temperatureValue.trim()).toEqual("30");
+
+  // mouse movements
+  const tab2 = page.locator('[tabtitle="Temperature"] ngx-temperature-dragger');
+  await tab2.scrollIntoViewIfNeeded();
+
+  const box = await tab2.boundingBox();
+
+  const x = box.x + box.width / 2;
+  const y = box.y + box.height / 2;
+
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+
+  await page.mouse.move(x + 100, y);
+  await expect(tab2).toContainText("26");
+  await page.mouse.move(x + 100, y + 100);
+  await page.mouse.up();
+  await expect(tab2).toContainText("30");
 });
