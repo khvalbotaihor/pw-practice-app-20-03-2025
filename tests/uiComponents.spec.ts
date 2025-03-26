@@ -392,7 +392,7 @@ test("date picker2", async ({ page }) => {
   );
 });
 
-test.only("slider", async ({ page }) => {
+test("slider", async ({ page }) => {
   // update attribute value
   const tab = page.locator(
     '[tabtitle="Temperature"] ngx-temperature-dragger circle'
