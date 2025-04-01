@@ -1,40 +1,24 @@
 import { test, expect } from "@playwright/test";
-import { NavigationPage } from "../page-objects/navigationPage";
+import { PageManager } from "../page-objects/pageManager";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("http://localhost:4200/");
 });
 
 test("navigation to the form page", async ({ page }) => {
-  const navigateTo = new NavigationPage(page);
-  await navigateTo.formLayoutsPage();
+  const pm = new PageManager(page);
+  await pm.navigateTo().formLayoutsPage();
   expect(page.url()).toBe("http://localhost:4200/pages/forms/layouts");
-});
-
-test("navigation to the datepicker page", async ({ page }) => {
-  const navigateTo = new NavigationPage(page);
-  await navigateTo.datepickerPage();
-  await page.waitForTimeout(500);
+  //datepicker page
+  await pm.navigateTo().datepickerPage();
   expect(page.url()).toBe("http://localhost:4200/pages/forms/datepicker");
-});
-
-test("navigation to the toaster page", async ({ page }) => {
-  const navigateTo = new NavigationPage(page);
-  await navigateTo.toasterPage();
-  await page.waitForTimeout(500);
+  //toastr page
+  await pm.navigateTo().toasterPage();
   expect(page.url()).toBe("http://localhost:4200/pages/modal-overlays/toastr");
-});
-test("navigation to the tooltip page", async ({ page }) => {
-  const navigateTo = new NavigationPage(page);
-  await navigateTo.tooltipPage();
-  await page.waitForTimeout(500);
-
-  expect(page.url()).toBe("http://localhost:4200/pages/modal-overlays/tooltip");
-});
-test("navigation to the smart table page", async ({ page }) => {
-  const navigateTo = new NavigationPage(page);
-  await navigateTo.smartTablePage();
-  await page.waitForTimeout(500);
-
+  //smart table
+  await pm.navigateTo().smartTablePage();
   expect(page.url()).toBe("http://localhost:4200/pages/tables/smart-table");
+  // tooltip
+  await pm.navigateTo().tooltipPage();
+  expect(page.url()).toBe("http://localhost:4200/pages/modal-overlays/tooltip");
 });

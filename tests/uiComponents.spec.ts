@@ -1,4 +1,5 @@
 import test, { expect } from "playwright/test";
+import { filter } from "rxjs-compat/operator/filter";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("http://localhost:4200/");
@@ -234,12 +235,8 @@ test("date picker", async ({ page }) => {
 
   await commonDatepickerContainer.locator("input").click();
   await page
-    .locator(
-      "nb-calendar-day-picker nb-calendar-day-cell:not(.bounding-month)",
-      {
-        hasText: day.toString(),
-      }
-    )
+    .locator("nb-calendar-day-picker nb-calendar-day-cell:not(.bounding-month)")
+    .getByText(day.toString(), { exact: true })
     .click();
 
   await expect(commonDatepickerContainer.locator("input")).toHaveValue(

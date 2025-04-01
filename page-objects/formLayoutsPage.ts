@@ -1,7 +1,7 @@
 import { Page, Locator } from "@playwright/test";
+import { HelperBase } from "./helperBase";
 
-export class FormLayoutsPage {
-  readonly page: Page;
+export class FormLayoutsPage extends HelperBase {
   readonly basicFormContainer: Locator;
   readonly basicFormEmailField: Locator;
   readonly basicFormPasswordField: Locator;
@@ -9,7 +9,7 @@ export class FormLayoutsPage {
   readonly basicFormSubmitButton: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
     this.basicFormContainer = page
       .locator("nb-card")
       .filter({ hasText: "Basic form" });
@@ -36,6 +36,12 @@ export class FormLayoutsPage {
     await this.basicFormSubmitButton.click();
   }
 
+  /**
+   * This method fill out the grid from with user details
+   * @param email - valid email address
+   * @param password - valid password
+   * @param optionText - text of the radio button to be selected
+   */
   async submitUsingTheGridFormWithCredentials(
     email: string,
     password: string,
