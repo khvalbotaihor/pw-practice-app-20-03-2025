@@ -1,8 +1,13 @@
-import test, { expect } from "playwright/test";
+import {test, expect } from "playwright/test";
+// import {test} from '../test-options'
+
+// test.beforeEach(async ({page, autoWaitingWebsite}, testInfo) => {
+//   await page.goto(autoWaitingWebsite);
+
 
 test.beforeEach(async ({page}, testInfo) => {
-  await page.goto('http://uitestingplayground.com/ajax');
-
+  await page.goto(process.env.URL);
+//
   await page.getByRole('button', {name: 'Button Triggering AJAX Request'}).click();
   testInfo.setTimeout(testInfo.timeout + 2000);
 });

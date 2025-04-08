@@ -1,12 +1,15 @@
 import { test } from "@playwright/test";
 import { PageManager } from "../page-objects/pageManager";
+import { faker } from "@faker-js/faker";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("http://localhost:4200/");
+  await page.goto("/");
 });
 
 test("Form Layouts", async ({ page }) => {
   const pm = new PageManager(page);
+  const randomFullName = faker.person.fullName();
+  const randomEmail = `${randomFullName.replace(' ', '')}${faker.number.int(1000)}@test.com`;
 
   await pm.navigateTo().formLayoutsPage();
   await page.waitForTimeout(500);
@@ -14,7 +17,7 @@ test("Form Layouts", async ({ page }) => {
   await pm
     .onFormLayoutsPage()
     .submitUsingTheGridFormWithCredentials(
-      "email@email.com",
+      randomEmail,
       "123456",
       "Option 1"
     );
@@ -22,12 +25,20 @@ test("Form Layouts", async ({ page }) => {
   await page.waitForTimeout(500);
   await pm
     .onFormLayoutsPage()
-    .submitBasicFormWithCredentials("rrr@33.com", "123", true);
+    .submitBasicFormWithCredentials(randomEmail, "123", true);
+
+  await page.screenshot({ path: 'screenshots/form-layouts.png' });
+    await page.locator("nb-card", {hasText: 'Inline form'}).screenshot({path: 'screenshots/inline-form.png'});
+  const buffer = await page.screenshot();
+  console.log(buffer.toString('base64'));
+
+
 
   await page.reload();
   await pm
     .onFormLayoutsPage()
-    .submitBasicFormWithCredentials("rrr@33.com", "123", false);
+    .submitBasicFormWithCredentials(randomEmail, "123", false);
+
 });
 
 test("Datepicker", async ({ page }) => {
