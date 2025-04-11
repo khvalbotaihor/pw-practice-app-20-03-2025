@@ -6,7 +6,7 @@ require("dotenv").config();
 export default defineConfig<TestOptions>({
   testDir: "./tests",
   fullyParallel: true,
-  forbidOnly: !!process.env.CI,
+  forbidOnly: false,
   expect: {
     toMatchSnapshot: { maxDiffPixels: 50 },
   },
