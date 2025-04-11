@@ -59,7 +59,7 @@ test.describe("UI Components", async () => {
     ).toBeFalsy();
   });
 
-    test.only("radio buttons 2", async ({ page }) => {
+    test("radio buttons 2", async ({ page }) => {
     const usingTheGridFrom = page.locator("nb-card", {hasText: "Using the Grid"});
 
     await usingTheGridFrom.getByLabel("Option 2").check({ force: true });
