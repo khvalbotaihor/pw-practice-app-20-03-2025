@@ -58,6 +58,18 @@ test.describe("UI Components", async () => {
         .isChecked()
     ).toBeFalsy();
   });
+
+    test.only("radio buttons 2", async ({ page }) => {
+    const usingTheGridFrom = page.locator("nb-card", {hasText: "Using the Grid"});
+
+    await usingTheGridFrom.getByLabel("Option 2").check({ force: true });
+
+    const radioStatus = await usingTheGridFrom.getByRole("radio", { name: "Option 1" }).isChecked();
+      //expect(radioStatus).toBeTruthy();
+    await expect(usingTheGridFrom).toHaveScreenshot({maxDiffPixels: 150});
+
+
+  });
 });
 
 test("checkboxes", async ({ page }) => {
