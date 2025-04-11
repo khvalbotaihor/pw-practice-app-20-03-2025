@@ -39,10 +39,10 @@ jobs:
           retention-days: 40
 
       # Optional: Upload Allure results if you're using Allure
-      # - name: Upload Allure results
-      #   if: ${{ !cancelled() }}
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: allure-results
-      #     path: test-results/allure-results/
-      #     retention-days: 40
+      - name: Upload Allure results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: test-results/allure-results/
+          retention-days: 40
