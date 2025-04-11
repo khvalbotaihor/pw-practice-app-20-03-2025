@@ -13,11 +13,23 @@ export default defineConfig<TestOptions>({
   retries: process.env.CI ? 2 : 1,
   workers: process.env.CI ? 1 : undefined,
   reporter: [
+    // Use "dot" reporter on CI, "list" otherwise (Playwright default).
+    process.env.CI ? ["dot"] : ["list"],
     ['json', { outputFile: 'test-results/results.json' }],
     ['html', { open: 'never' }],
     ['junit', { outputFile: 'test-results/junit.xml' }],
     ['allure-playwright'],
-    ['html']
+    ['html'],
+    [
+      "@argos-ci/playwright/reporter",
+      {
+        // Upload to Argos on CI only.
+        uploadToArgos: !!process.env.CI,
+
+        // Set your Argos token (required if not using GitHub Actions).
+        //token: "<argos_e445e1ada809fc83389620e0f98602c691>",// - token is not needed as we logged into the app through github
+      },
+    ],
   ],
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -25,8 +37,11 @@ export default defineConfig<TestOptions>({
     globalQaURL: 'https://www.globalsqa.com/demo-site/draganddrop/',
     autoWaitingWebsite: 'http://uitestingplayground.com/ajax',
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: "on-first-retry",
+     // Collect trace when retrying the failed test.
+    trace: 'on-first-retry',
+
+    // Capture screenshot after each test failure.
+    screenshot: "only-on-failure",
     video: {
       mode: "on",
       size: {
