@@ -21,14 +21,14 @@ jobs:
           node-version: lts/*
 
       - name: Install dependencies (with legacy peer deps)
-        run: npm ci --legacy-peer-deps
+        run: npm ci --legacy-peer-deps --force
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: npx playwright install --with-deps --force
 
       # Playwright will start the Angular app using `webServer` from the config
       - name: Run Playwright tests
-        run: npx playwright test
+        run: npm run pageObjects-chrome
 
       - name: Upload Playwright HTML Report
         if: ${{ !cancelled() }}
