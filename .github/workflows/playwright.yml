@@ -26,10 +26,6 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      # Optional: verify that Angular dev server starts with this command
-      - name: Verify Angular build (optional)
-        run: npm run build
-
       # Playwright will start the Angular app using `webServer` from the config
       - name: Run Playwright tests
         run: npx playwright test
