@@ -1,0 +1,1 @@
+A snapshot doesn't exist at /Users/ihor/Desktop/pw-practice-app-20-03-2025/tests/uiComponents.spec.ts-snapshots/UI-Components-radio-buttons-2-1-firefox-darwin.png, writing actual.

@@ -1,0 +1,223 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: UI Components >> radio buttons 2
+- Location: /Users/ihor/Desktop/pw-practice-app-20-03-2025/tests/uiComponents.spec.ts:62:10
+
+# Error details
+
+```
+Error: expect(locator).toHaveScreenshot(expected)
+
+  Expected an image 461px by 383px, received 459px by 383px. 485 pixels (ratio 0.01 of all image pixels) are different.
+
+Expected: /Users/ihor/Desktop/pw-practice-app-20-03-2025/tests/uiComponents.spec.ts-snapshots/UI-Components-radio-buttons-2-1-dev-darwin.png
+Received: /Users/ihor/Desktop/pw-practice-app-20-03-2025/test-results/uiComponents-UI-Components-radio-buttons-2-dev-retry2/UI-Components-radio-buttons-2-1-actual.png
+    Diff: /Users/ihor/Desktop/pw-practice-app-20-03-2025/test-results/uiComponents-UI-Components-radio-buttons-2-dev-retry2/UI-Components-radio-buttons-2-1-diff.png
+
+Call log:
+  - expect.toHaveScreenshot with timeout 5000ms
+    - verifying given screenshot expectation
+  - waiting for locator('nb-card').filter({ hasText: 'Using the Grid' })
+    - locator resolved to <nb-card _nghost-xsp-c95="" _ngcontent-xsp-c287="">…</nb-card>
+  - taking element screenshot
+    - disabled all CSS animations
+  - waiting for fonts to load...
+  - fonts loaded
+  - attempting scroll into view action
+    - waiting for element to be stable
+  - Expected an image 461px by 383px, received 459px by 383px. 485 pixels (ratio 0.01 of all image pixels) are different.
+  - waiting 100ms before taking screenshot
+  - waiting for locator('nb-card').filter({ hasText: 'Using the Grid' })
+    - locator resolved to <nb-card _nghost-xsp-c95="" _ngcontent-xsp-c287="">…</nb-card>
+  - taking element screenshot
+    - disabled all CSS animations
+  - waiting for fonts to load...
+  - fonts loaded
+  - attempting scroll into view action
+    - waiting for element to be stable
+  - captured a stable screenshot
+  - Expected an image 461px by 383px, received 459px by 383px. 485 pixels (ratio 0.01 of all image pixels) are different.
+
+    at /Users/ihor/Desktop/pw-practice-app-20-03-2025/tests/uiComponents.spec.ts:69:36
+```
+
+# Test source
+
+```ts
+   1 | import test, { expect } from "playwright/test";
+   2 | import { filter } from "rxjs-compat/operator/filter";
+   3 |
+   4 | // test.describe.configure({ mode: "parallel" });
+   5 |
+   6 |
+   7 |
+   8 | test.beforeEach(async ({ page }) => {
+   9 |   await page.goto("/");
+   10 | });
+   11 |
+   12 | test.describe("UI Components", async () => {
+   13 |   test.describe.configure({retries: 2});
+   14 |   test.beforeEach(async ({ page }) => {
+   15 |     await page.getByText("Forms").click();
+   16 |     await page.getByText("Form Layouts").click();
+   17 |   });
+   18 |
+   19 |   test("input fields", async ({ page }, testInfo) => {
+   20 |     if (testInfo.retry) {
+   21 |       //to do smt
+   22 |     }
+   23 |     const usingTheGridEmailInput = page
+   24 |       .locator("nb-card", { hasText: "Using the Grid" })
+   25 |       .getByRole("textbox", { name: "Email" });
+   26 |
+   27 |     await usingTheGridEmailInput.fill(process.env.USERNAME);
+   28 |     await usingTheGridEmailInput.clear();
+   29 |     await usingTheGridEmailInput.pressSequentially("test2@test.com", {
+   30 |       delay: 500,
+   31 |     });
+   32 |
+   33 |     // generic assertion
+   34 |
+   35 |     const inputValue = await usingTheGridEmailInput.inputValue();
+   36 |     expect(inputValue).toEqual("test2@test.com");
+   37 |
+   38 |     // locator assertion
+   39 |     await expect(usingTheGridEmailInput).toHaveValue("test2@test.com");
+   40 |   });
+   41 |
+   42 |   test("radio buttons", async ({ page }) => {
+   43 |     const usingTheGridFrom = page.locator("nb-card", {
+   44 |       hasText: "Using the Grid",
+   45 |     });
+   46 |     await usingTheGridFrom.getByLabel("Option 1").check({ force: true });
+   47 |     await usingTheGridFrom
+   48 |       .getByRole("radio", { name: "Option 2" })
+   49 |       .check({ force: true });
+   50 |
+   51 |     const radioStatus = await usingTheGridFrom
+   52 |       .getByRole("radio", { name: "Option 2" })
+   53 |       .isChecked();
+   54 |     expect(radioStatus).toBeTruthy();
+   55 |     expect(
+   56 |       await usingTheGridFrom
+   57 |         .getByRole("radio", { name: "Option 1" })
+   58 |         .isChecked()
+   59 |     ).toBeFalsy();
+   60 |   });
+   61 |
+   62 |     test.only("radio buttons 2", async ({ page }) => {
+   63 |     const usingTheGridFrom = page.locator("nb-card", {hasText: "Using the Grid"});
+   64 |
+   65 |     await usingTheGridFrom.getByLabel("Option 2").check({ force: true });
+   66 |
+   67 |     const radioStatus = await usingTheGridFrom.getByRole("radio", { name: "Option 1" }).isChecked();
+   68 |       //expect(radioStatus).toBeTruthy();
+>  69 |     await expect(usingTheGridFrom).toHaveScreenshot({maxDiffPixels: 150});
+      |                                    ^ Error: expect(locator).toHaveScreenshot(expected)
+   70 |
+   71 |
+   72 |   });
+   73 | });
+   74 |
+   75 | test("checkboxes", async ({ page }) => {
+   76 |   await page.getByText("Modal & Overlays").click();
+   77 |   await page.getByText("Toastr").click();
+   78 |
+   79 |   await page
+   80 |     .getByRole("checkbox", { name: "Hide on click" })
+   81 |     .click({ force: true });
+   82 |   await page
+   83 |     .getByRole("checkbox", { name: "Prevent arising of duplicate toast" })
+   84 |     .check({ force: true });
+   85 |   await page
+   86 |     .getByRole("checkbox", { name: "Show toast with icon" })
+   87 |     .uncheck({ force: true });
+   88 |
+   89 |   const allBoxes = await page.getByRole("checkbox");
+   90 |   for (const checkbox of await allBoxes.all()) {
+   91 |     await checkbox.uncheck({ force: true });
+   92 |     expect(await checkbox.isChecked()).toBeFalsy();
+   93 |   }
+   94 | });
+   95 |
+   96 | test("list and drop-down", async ({ page }) => {
+   97 |   const buttonThemeButton = page.locator("ngx-header nb-select");
+   98 |
+   99 |   const defaultTheme = page.locator('[ng-reflect-value="default"]');
+  100 |   const darkTheme = page.locator('[ng-reflect-value="dark"]');
+  101 |   const optionList = page.locator("nb-option-list nb-option");
+  102 |
+  103 |   await buttonThemeButton.click();
+  104 |   await darkTheme.click();
+  105 |   expect(await buttonThemeButton).toHaveText("Dark");
+  106 |   const header = page.locator("nb-layout-header");
+  107 |   await expect(header).toHaveCSS("background-color", "rgb(34, 43, 69)");
+  108 |
+  109 |   await buttonThemeButton.click();
+  110 |
+  111 |   await expect(optionList).toHaveText(["Light", "Dark", "Cosmic", "Corporate"]);
+  112 |   await optionList.filter({ hasText: "Cosmic" }).click();
+  113 |
+  114 |   const colors = {
+  115 |     Light: "rgb(255, 255, 255)",
+  116 |     Dark: "rgb(34, 43, 69)",
+  117 |     Cosmic: "rgb(50, 50, 89)",
+  118 |     Corporate: "rgb(255, 255, 255)",
+  119 |   };
+  120 |
+  121 |   for (const color in colors) {
+  122 |     await buttonThemeButton.click();
+  123 |     await optionList.filter({ hasText: color }).click();
+  124 |     await expect(header).toHaveCSS("background-color", colors[color]);
+  125 |   }
+  126 | });
+  127 |
+  128 | test("tooltip", async ({ page }) => {
+  129 |   await page.getByText("Modal & Overlays").click();
+  130 |   await page.getByText("Tooltip").click();
+  131 |
+  132 |   const tooltipPlacements = page.locator("nb-card", {
+  133 |     hasText: "Tooltip Placements",
+  134 |   });
+  135 |   await tooltipPlacements.getByRole("button", { name: "Top" }).hover();
+  136 |
+  137 |   const tooltip = await page.locator("nb-tooltip").textContent();
+  138 |   expect(tooltip).toEqual("This is a tooltip");
+  139 | });
+  140 |
+  141 | test("dialog boxes", async ({ page }) => {
+  142 |   await page.getByText("Tables & Data").click();
+  143 |   await page.getByText("Smart table").click();
+  144 |
+  145 |   // handle browser dialog
+  146 |   page.on("dialog", async (dialog) => {
+  147 |     expect(dialog.message()).toEqual("Are you sure you want to delete?");
+  148 |     await dialog.accept();
+  149 |   });
+  150 |
+  151 |   await page
+  152 |     .getByRole("table")
+  153 |     .locator("tr", { hasText: "mdo@gmail.com" })
+  154 |     .locator(".nb-trash")
+  155 |     .click();
+  156 |
+  157 |   expect(await page.getByRole("table").locator("tr").allTextContents()).toEqual(
+  158 |     expect.not.arrayContaining(["mdo@gmail.com"])
+  159 |   );
+  160 |
+  161 |   await expect(page.locator("table tr").first()).not.toHaveText(
+  162 |     "mdo@gmail.com"
+  163 |   );
+  164 | });
+  165 |
+  166 | test("table", async ({ page }) => {
+  167 |   await page.getByText("Tables & Data").click();
+  168 |   await page.getByText("Smart table").click();
+  169 |
+```

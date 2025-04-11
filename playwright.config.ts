@@ -7,9 +7,18 @@ export default defineConfig<TestOptions>({
   testDir: "./tests",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
+  expect: {
+    toMatchSnapshot: { maxDiffPixels: 50 },
+  },
   retries: process.env.CI ? 2 : 1,
   workers: process.env.CI ? 1 : undefined,
-  reporter: "html",
+  reporter: [
+    ['json', { outputFile: 'test-results/results.json' }],
+    ['html', { open: 'never' }],
+    ['junit', { outputFile: 'test-results/junit.xml' }],
+    ['allure-playwright'],
+    ['html']
+  ],
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: 'http://localhost:4200/',
@@ -52,37 +61,16 @@ export default defineConfig<TestOptions>({
       name: 'firefox',
       use: { browserName: 'firefox' },
     },
-
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    // },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
+    {
+      name: 'mobile',
+      testMatch: 'testMobile.spec.ts',
+      use: { ...devices['iPhone 13 Pro'] },
+    },
   ],
 
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://127.0.0.1:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+   webServer: {
+    command: 'npm run start',
+     url: 'http://localhost:4200/',
+       timeout: 120000, // wait up to 2 minutes
+   },
 });

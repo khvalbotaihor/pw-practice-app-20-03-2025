@@ -6,7 +6,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
 });
 
-test("navigation to the form page", async ({ page }) => {
+test("navigation to the form page @smoke", async ({ page }) => {
   const pm = new PageManager(page);
   await pm.navigateTo().formLayoutsPage();
   expect(page.url()).toBe("http://localhost:4200/pages/forms/layouts");
